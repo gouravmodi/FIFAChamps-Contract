@@ -1,4 +1,8 @@
 /**
+ *Submitted for verification at BscScan.com on 2022-08-02
+*/
+
+/**
  * FIFAChamps Contract
  * Telegram: @FIFAChampsGlobal
  * Twitter: @FIFAChampsBSC
@@ -426,13 +430,11 @@ contract FIFAChamps is Context, IERC20, Ownable {
     uint256 public _taxFee = 0;
     uint256 private _previousTaxFee = _taxFee;
 
-    uint256 public liquidityFee = 3;
+    uint256 public liquidityFee = 1;
     uint256 private _previousLiquidityFee = liquidityFee;
 
-    uint256 private _burnFee = 2;
+    uint256 private _burnFee = 1;
     uint256 private _previousBurnFee = _burnFee;
-
-    bool public liquidityAdded = false;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
     address public immutable uniswapV2Pair;
@@ -602,17 +604,17 @@ contract FIFAChamps is Context, IERC20, Ownable {
     }
 
     function setTaxFeePercent(uint256 taxFee) external onlyOwner {
-        require(taxFee <= 5, ERROR_HIGH_TAX);
+        require(taxFee <= 1, ERROR_HIGH_TAX);
         _taxFee = taxFee;
     }
 
     function setBurnFeePercent(uint256 burnFee) external onlyOwner {
-        require(burnFee <= 5, ERROR_HIGH_TAX);
+        require(burnFee <= 1, ERROR_HIGH_TAX);
         _burnFee = burnFee;
     }
 
     function setLiquidityFeePercent(uint256 LiquidityFee) external onlyOwner {
-        require(LiquidityFee <= 5, ERROR_HIGH_TAX);
+        require(LiquidityFee <= 1, ERROR_HIGH_TAX);
         liquidityFee = LiquidityFee;
     }
 
@@ -732,11 +734,8 @@ contract FIFAChamps is Context, IERC20, Ownable {
         require(from != address(0), 'ERC20: transfer from the zero address');
         require(to != address(0), 'ERC20: transfer to the zero address');
         require(amount > 0, 'Transfer amount must be greater than zero');
-        if (to == uniswapV2Pair && liquidityAdded == false && from != owner())
-            revert('Only owner can add first liquidity');
 
         uint256 contractTokenBalance = balanceOf(address(this));
-
 
         bool overMinTokenBalance = contractTokenBalance >= numTokensSellToAddToLiquidity;
         if (overMinTokenBalance && !inSwapAndLiquify && from != uniswapV2Pair && swapAndLiquifyEnabled) {
@@ -854,12 +853,6 @@ contract FIFAChamps is Context, IERC20, Ownable {
         _takeBurn(tBurn);
         _reflectFee(rFee, tFee);
         emit Transfer(sender, recipient, tTransferAmount);
-    }
-
-    function allowDEXTransactions() external onlyOwner {
-        require(IERC20(uniswapV2Pair).totalSupply() != 0, "Must add liquidity first");
-        require(liquidityAdded == false);
-        liquidityAdded = true;
     }
 
     function transferETH(address payable _recipient) public onlyOwner {
